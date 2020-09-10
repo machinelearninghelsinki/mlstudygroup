@@ -94,6 +94,9 @@ key: value
 
 {% twitter https://twitter.com/jakevdp/status/1204765621767901185?s=20 %}
 
+## Youtube Playlist
+<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?list=PLgnQpQtFTOGQJXx-x0t23RmRbjp_yMb4v" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 ## Footnotes
 
