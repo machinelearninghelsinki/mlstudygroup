@@ -20,8 +20,8 @@ More Computer Vision exercises can be found under Udacity CVND repo: https://git
 
 ```python
 import numpy as np
-import matplotlib.pyplot as plt 
-# for image reading 
+import matplotlib.pyplot as plt
+# for image reading
 import matplotlib.image as mpimg
 import cv2
 
@@ -31,7 +31,7 @@ import cv2
 
 ## Image reading
 
-Given an **RGB** image, let's read it using matplotlib (`mpimg`) . 
+Given an **RGB** image, let's read it using matplotlib (`mpimg`) .
 
 > The RGB color model is an additive color model in which red, green, and blue light are added together in various ways to reproduce a broad array of colors. The name of the model comes from the initials of the three additive primary colors, red, green, and blue
 <br>
@@ -49,7 +49,7 @@ print('Shape of the image:', image.shape)
 ```
 
     Shape of the image: (720, 1280, 3)
-    
+
 
 Per single image, we can retrieve the following info:
 * `height = 720`
@@ -75,7 +75,7 @@ plt.imshow(gray_img, cmap = 'gray')
 
 
 
-![png](output_11_1.png)
+![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_11_1.png)
 
 
 
@@ -84,10 +84,10 @@ print('Shape of the image after convertation:', gray_img.shape)
 ```
 
     Shape of the image after convertation: (720, 1280)
-    
+
 
 It's important to understand an image is just a matrix (tensor) with values, representing the **intensity** of pixels (from 0 to 255).<br>
-Each pixel has it's own coordinates. 
+Each pixel has it's own coordinates.
 
 
 ```python
@@ -97,7 +97,7 @@ print('Min pixel value:', gray_img.min())
 
     Max pixel value: 255
     Min pixel value: 0
-    
+
 
 Use the pair of (x,y) coordinates to access particular pixel's value.
 
@@ -111,7 +111,7 @@ print(pixel_value)
 ```
 
     28
-    
+
 
 Note, it's possible to **manipulate pixel values** by scalar multiplication and augmentation in different formats.
 
@@ -150,7 +150,7 @@ plt.matshow(pixel, cmap = 'gray')
 
 
 
-![png](output_20_1.png)
+![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_20_1.png)
 
 
 
