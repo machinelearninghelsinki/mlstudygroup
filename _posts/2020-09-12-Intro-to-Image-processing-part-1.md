@@ -158,7 +158,9 @@ plt.matshow(pixel, cmap = 'gray')
 
 
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_20_1.png)
+![]({{ site.baseurl }}/images/output_20_1.png "grayscale image")
+
+
 
 
 
