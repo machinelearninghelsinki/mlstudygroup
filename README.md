@@ -6,7 +6,7 @@
 
 https://machinelearninghelsinki.github.io/mlstudygroup/
 
-# My Blog
+# ML group blog
 
 
 _powered by [fastpages](https://github.com/fastai/fastpages)_
