@@ -2,7 +2,7 @@
 toc: true
 layout: post
 description: Notes, links and thoughs from the meetup on Sept 5th 2020
-categories: [markdown]
+categories: [meetup]
 title: Meetup Sept 05 2020 (Notes)
 ---
 # Notes
