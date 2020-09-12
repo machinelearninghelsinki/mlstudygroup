@@ -82,8 +82,8 @@ plt.imshow(gray_img, cmap = 'gray')
 
 
 
+![]({{ site.baseurl }}/images/output_11_1.png "rgb to gray")
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_11_1.png)
 
 
 
