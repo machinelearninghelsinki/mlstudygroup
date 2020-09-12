@@ -4,7 +4,7 @@ layout: post
 description: Image processing with OpenCV
 categories: [learning]
 comments: true
-title:  Image processing with OpenCV: Part 1
+title:  "Image processing with OpenCV: Part 1"
 ---
 # Image processing with OpenCV: Part 1
 
