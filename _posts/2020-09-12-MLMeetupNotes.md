@@ -8,7 +8,7 @@ title: Meetup Sept 12 2020 (Notes)
 ---
 # Notes
 - We introduced the new Machine Learning Meetup page and blogs related to it.
-- Aditya discussed the first part of Reinforment Learning pdf given in the [course](https://www.edx.org/course/advanced-machine-learning)
+- Aditya discussed the first part of Reinforcement Learning section from the [course](https://www.edx.org/course/advanced-machine-learning)
 - Artyom went through [Image processing with OpenCV: Part 1](https://machinelearninghelsinki.github.io/mlstudygroup/learning/2020/09/12/Intro-to-Image-processing-part-1.html)
 
 # Meetup Videos
