@@ -6,8 +6,6 @@ categories: [learning]
 comments: true
 title:  Image processing with OpenCV: Part 1
 ---
-
-
 # Image processing with OpenCV: Part 1
 
 ## Disclaimer
