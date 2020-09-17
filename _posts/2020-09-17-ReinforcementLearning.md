@@ -2,7 +2,7 @@
 toc: true
 layout: post
 description: All the reinforcement learning study material
-categories: [resources,youtube,learning]
+categories: [resources]
 comments: true
 title: RL and Robotics Learning Resources
 ---
