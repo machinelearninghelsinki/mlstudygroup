@@ -1,3 +1,11 @@
+---
+toc: true
+layout: post
+description: Image processing with OpenCV
+categories: [learning]
+comments: true
+title:  "Image processing with OpenCV: Part 1"
+---
 # Image processing with OpenCV: Part 1
 
 ## Disclaimer
@@ -74,8 +82,8 @@ plt.imshow(gray_img, cmap = 'gray')
 
 
 
+![]({{ site.baseurl }}/images/output_11_1.png "rgb to gray")
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_11_1.png)
 
 
 
@@ -150,7 +158,6 @@ plt.matshow(pixel, cmap = 'gray')
 
 
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_20_1.png)
 
 
 
