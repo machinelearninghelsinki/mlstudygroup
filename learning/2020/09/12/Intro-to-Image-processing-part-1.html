@@ -77,7 +77,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      2 min read
+      19 min read
     
 </span></p>
 
@@ -99,6 +99,34 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#disclaimer">Disclaimer</a></li>
 <li class="toc-entry toc-h2"><a href="#libraries">Libraries</a></li>
 <li class="toc-entry toc-h2"><a href="#image-reading">Image reading</a></li>
+<li class="toc-entry toc-h2"><a href="#color-isolating">Color isolating</a></li>
+<li class="toc-entry toc-h2"><a href="#background-change">Background change</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#isolating-objects-background">Isolating object’s background</a></li>
+<li class="toc-entry toc-h3"><a href="#creating-mask">Creating mask</a></li>
+<li class="toc-entry toc-h3"><a href="#applying-new-background">Applying new background</a></li>
+<li class="toc-entry toc-h3"><a href="#final-step-add-object-and-new-background-together">Final step: add object and new background together</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#object-detection-in-hsv-space">Object detection in HSV space</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#hsv-colorspace">HSV colorspace</a></li>
+<li class="toc-entry toc-h3"><a href="#create-thresholds-for-pink-color-in-rgb-and-hsv">Create thresholds for pink color in RGB and HSV</a></li>
+<li class="toc-entry toc-h3"><a href="#mask-the-images">Mask the images</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#day-and-night-image-classifier">Day and Night Image Classifier</a></li>
+<li class="toc-entry toc-h2"><a href="#training-and-testing-data">Training and Testing Data</a></li>
+<li class="toc-entry toc-h2"><a href="#load-the-datasets">Load the datasets</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#visualize-the-input-images">Visualize the input images</a></li>
+<li class="toc-entry toc-h3"><a href="#standardize-images">Standardize images</a></li>
+<li class="toc-entry toc-h3"><a href="#feature-extraction">Feature extraction</a></li>
+<li class="toc-entry toc-h3"><a href="#find-average-brightness-using-v-channel">Find average brightness using V channel</a></li>
+<li class="toc-entry toc-h3"><a href="#classification">Classification</a></li>
+<li class="toc-entry toc-h3"><a href="#testing-classifier">Testing classifier</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul><h1 id="image-processing-with-opencv-part-1">
@@ -160,7 +188,7 @@ More Computer Vision exercises can be found under Udacity CVND repo: https://git
 </ul>
 
 <p>Later on, we will see that for many “classical” computer vision algorithms the color information is redundant. <br>
-For solving problems like edge, corner or blob detection, the grayscal image is enough.<br></p>
+For solving problems like edge, corner or blob detection, the grayscale image is enough.<br></p>
 
 <p>Let’s use <code class="highlighter-rouge">cvtColor</code> function to convert RGB image to gray.</p>
 
@@ -227,6 +255,911 @@ Min pixel value: 0
 </code></pre></div></div>
 
 <p><img src="/mlstudygroup/images/output_20_1.png" alt="" title="grayscale image"></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+<h2 id="color-isolating">
+<a class="anchor" href="#color-isolating" aria-hidden="true"><span class="octicon octicon-link"></span></a>Color isolating</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></div></div>
+
+<p>Let’s read an image and see how we can visualize <strong>3 RBG colors individually</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img</span> <span class="o">=</span> <span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s">'images/car.jpeg'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec8de0b8&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_24_1.png)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'Shape of the image:'</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Shape of the image: (281, 500, 3)
+</code></pre></div></div>
+
+<p>Since the color image is a tensor composed of 3 colors, we can express “red”, “green” and “bleu” as follows.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">r</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># red
+</span><span class="n">g</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,</span> <span class="mi">1</span><span class="p">]</span> <span class="c1"># green
+</span><span class="n">b</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,:,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1"># blue
+</span><span class="k">print</span><span class="p">(</span><span class="s">'Shape of individual color matrix:'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Shape of individual color matrix: (281, 500)
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># visualize red
+</span><span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'R channel'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="c1"># green
+</span><span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'G channel'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="c1"># blue
+</span><span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'B channel'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feb0295d550&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_28_1.png)</p>
+
+<h2 id="background-change">
+<a class="anchor" href="#background-change" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background change</h2>
+
+<h3 id="isolating-objects-background">
+<a class="anchor" href="#isolating-objects-background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Isolating object’s background</h3>
+
+<p><strong>Additional resources</strong>:</p>
+
+<ul>
+  <li>Color picker to choose boundaries: https://www.w3schools.com/colors/colors_picker.asp</li>
+</ul>
+
+<p>Suppose we have an image of an object on solid color background.<br>
+Consider the image of a robot below - we read it with open-cv library.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s">'images/robot_blue.jpg'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec56f6d8&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_33_1.png)</p>
+
+<blockquote>
+  <p><strong>Important note</strong>: open-cv reads images as BGR, not RGB - as a result the output is different from original image.<br>
+In particular - red and blue colors are in <strong>reverse order</strong>.<br></p>
+</blockquote>
+
+<p>Next, we take a copy of image and change it from BGR to RGB (pass parameter <code class="highlighter-rouge">cv2.COLOR_BGR2RGB</code>). <br>Note, that any transformations applied to a copy will not effect an image.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- make a copy with numpy
+- change from BGR to RGB
+"""</span>
+
+<span class="n">img_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+<span class="n">img_copy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_copy</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_copy</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec6dc4e0&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_36_1.png)</p>
+
+<p>First,  define color a threshold. It will be a <strong>lower and upper bounds</strong> for the background I wnat to isolate.<br> Here we need to specify <strong>3 values</strong> - for each color - red, green and blue. <br></p>
+<ul>
+  <li>
+<strong>Lower bound</strong>: red and green as zero, and high value for blue. For example, <code class="highlighter-rouge">230</code>.<br>
+</li>
+  <li>
+<strong>Upper bound</strong>: red, green - some small values and blue - maximum, i.e. <code class="highlighter-rouge">250</code>. So, allow a bit red and green.<br>
+</li>
+</ul>
+
+<p>All values within this range will be considered as <strong>intense blue color</strong>. This range will be replaced by another background.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">blue_lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">230</span><span class="p">])</span>
+<span class="n">blue_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">250</span><span class="p">])</span>
+</code></pre></div></div>
+
+<h3 id="creating-mask">
+<a class="anchor" href="#creating-mask" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating mask</h3>
+
+<p>We are going to use a common way to isolate chosen area - <strong>creating a mask</strong>.<br>
+Now, we will isolate blue background area using <strong>inRange()</strong> function.<br>
+It verifies each pixel whether it falls into specific range, defined by <strong>lower and upper bounds</strong>. <br></p>
+
+<ul>
+  <li>If it falls - the white mask will be displayed;</li>
+  <li>If it does not fall within the range - pixel will be turned into black.</li>
+</ul>
+
+<p>Simply saying, <strong>everything inside the interval will be white</strong>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- function will take lower and upper bounds of image
+- and define the mask
+"""</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">img_copy</span><span class="p">,</span> <span class="n">blue_lower</span><span class="p">,</span> <span class="n">blue_upper</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec74afd0&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_41_1.png)</p>
+
+<ul>
+  <li>White area - area, where the new image background will be displayed.</li>
+  <li>Black area - where ew image background will be blocked out.</li>
+</ul>
+
+<p>The mask has the <strong>same height and width</strong>, and each pixel has 2 values:</p>
+<ul>
+  <li>255 - for white area;</li>
+  <li>0 - for black area.</li>
+</ul>
+
+<p>Now, let’s put our object into a mask.</p>
+<ul>
+  <li>First of all, create a <strong>copy of image</strong> (just if we want to change it later on).<br>
+</li>
+  <li>Then, one way to separate blue background from this is to check where <strong>blue pixels intersect with mask white pixels</strong>, or in other words - <strong>do not intersect with black (not equal 0)</strong>.<br>
+We will set them to black color.</li>
+</ul>
+
+<p>Displaying an image, we will see that only object appears on a black background.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">masked_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img_copy</span><span class="p">)</span>
+<span class="n">masked_img</span><span class="p">[</span><span class="n">mask</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">masked_img</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec47eba8&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_46_1.png)</p>
+
+<h3 id="applying-new-background">
+<a class="anchor" href="#applying-new-background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Applying new background</h3>
+
+<p>Next step will be just to apply <strong>new background on top of black one</strong>. <br>
+We just take an image, (e.g. “space image” below and convert it from BGR to RGB). <br></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">background_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s">'images/background_img.jpg'</span><span class="p">)</span>
+<span class="n">background_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">background_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">background_img</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec4e4630&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_49_1.png)</p>
+
+<p>It’s also important to crop background image to make it the same size as our robot image.
+We crop it by height and width.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- cropping to a size of (720, 1280)
+"""</span>
+
+<span class="n">crop_background_img</span> <span class="o">=</span> <span class="n">background_img</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">720</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1280</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Now, we will do an opposite operation with a cropped background image: choose <strong>pixels that are equal to 0 in mask image</strong> (there we had black robot) and set these pixels to a <strong>black on cropped background image</strong>. <br></p>
+
+<p>Simply saying, we merge <code class="highlighter-rouge">mask</code> and <code class="highlighter-rouge">crop_background_img</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">crop_background_img</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">crop_background_img</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaeb3c8278&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_53_1.png)</p>
+
+<h3 id="final-step-add-object-and-new-background-together">
+<a class="anchor" href="#final-step-add-object-and-new-background-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Final step: add object and new background together</h3>
+
+<p>Since the black area on cropped background image is equivalent to 0, we can add this image to masked image.<br>
+In this case simple summation will work, since we deal with matrices.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">final_image</span> <span class="o">=</span> <span class="n">crop_background_img</span> <span class="o">+</span> <span class="n">masked_img</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">final_image</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaeb425be0&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_56_1.png)</p>
+
+<h2 id="object-detection-in-hsv-space">
+<a class="anchor" href="#object-detection-in-hsv-space" aria-hidden="true"><span class="octicon octicon-link"></span></a>Object detection in HSV space</h2>
+
+<h3 id="hsv-colorspace">
+<a class="anchor" href="#hsv-colorspace" aria-hidden="true"><span class="octicon octicon-link"></span></a>HSV colorspace</h3>
+
+<p>HSV colorspace is similar to RGB and also represents 3 channel - <strong>hue</strong>, <strong>saturation</strong> and <strong>value</strong>.<br>
+This space is commonly used in tasks like image segmentation.<br> In HSV colorspace Hue channel models color type, while
+Saturation and Value represents color as a mixture of shades and brightness.</p>
+
+<blockquote>
+  <p>Since the hue channel models the color type, it is very useful in image processing tasks that need to segment objects based on its color. Variation of the saturation goes from unsaturated to represent shades of gray and fully saturated (no white component). Value channel describes the brightness or the intensity of the color.</p>
+</blockquote>
+
+<p>Source: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html</p>
+
+<p>We will start with image displaying. We will use both RGB and HSV color spaces to detect the balloons in the image.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s">'images/baloons.jpg'</span><span class="p">)</span>
+<span class="n">img_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+<span class="n">img_copy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_copy</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_copy</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaef450a58&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_62_1.png)</p>
+
+<p>First, let’s plot the color channels in RGB space.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># RGB channels
+# we take all pixels, but isolate the color we need
+</span>
+<span class="n">red</span> <span class="o">=</span> <span class="n">img_copy</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">green</span> <span class="o">=</span> <span class="n">img_copy</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="n">img_copy</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># now, plot each of this colors in gray scale to see the relative intensities
+</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Red scale'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">red</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Green scale'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">green</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Blue scale'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">blue</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaefa82630&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_64_1.png)</p>
+
+<p>We can see that pink balloons have high values for the red (close to 255, white color) and medium values for blue.<br>
+However, there are many variations, especially if the balloon is in shadow.</p>
+
+<p>Next, we convert image from RGB to HSV.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_copy</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Now, we isolate each of these channels as we did before.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hue</span> <span class="o">=</span> <span class="n">hsv</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">saturation</span> <span class="o">=</span> <span class="n">hsv</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">hsv</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+
+<span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Hue'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Saturation'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">saturation</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Value'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaf0b542b0&gt;
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_69_1.png)</p>
+
+<p>Compare this to our image. Take a look at pink balloons:</p>
+<ul>
+  <li>Hue has <strong>high values</strong> for pink balloons, and even in shadow <strong>hue level is pretty consistent</strong>;</li>
+  <li>Saturation values are quite versatile depending on shadow.</li>
+</ul>
+
+<h3 id="create-thresholds-for-pink-color-in-rgb-and-hsv">
+<a class="anchor" href="#create-thresholds-for-pink-color-in-rgb-and-hsv" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create thresholds for pink color in RGB and HSV</h3>
+
+<p>Now, create lower and upper bounds for pink color in RGB and then in HSV spaces.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># use thrashold for pink color in RGB
+# link to check: https://www.w3schools.com/colors/colors_rgb.asp
+</span>
+<span class="n">lower_pink</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">180</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">])</span>
+<span class="n">upper_pink</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">230</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Then, do the same for HSV.<br>
+Remember, that <strong>hue goes from 0 to 180 degrees</strong>. We will limit this from 160 to 180.<br>
+Will allow any values for saturation and value from 0 to 255.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lower_hue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">140</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">upper_hue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">180</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">])</span>
+</code></pre></div></div>
+
+<h3 id="mask-the-images">
+<a class="anchor" href="#mask-the-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mask the images</h3>
+
+<p>Now, we will create a mask to see <strong>how well these thresholds select the pink balloons</strong>.<br>
+As previous we will use <code class="highlighter-rouge">inRage()</code> function and apply mask afterwards.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- first we create mask based on lower and upper bounds. Mask will assign 0 to all pixels that are out of these interval.
+- then we make all pixels, intersecting with black color (have 0 values) black (assign to [0,0,0]).
+- isolate pink color
+"""</span>
+
+<span class="n">mask_rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">img_copy</span><span class="p">,</span> <span class="n">lower_pink</span><span class="p">,</span> <span class="n">upper_pink</span><span class="p">)</span>
+<span class="n">masked_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">img_copy</span><span class="p">)</span>
+<span class="n">masked_image</span><span class="p">[</span><span class="n">mask_rgb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">masked_image</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'RGB selection'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'RGB selection')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_78_1.png)</p>
+
+<p>Here we can see RGB colorspace:</p>
+<ul>
+  <li>Does not select all pink balloons (or ones that are in shadow);</li>
+  <li>Selects some other colors.</li>
+</ul>
+
+<p>Finally, repeat the procedure for HSV colorspace.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+ - note, we will use hsv image (RGB2HSV)
+"""</span>
+<span class="n">mask_hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span> <span class="n">hsv</span><span class="p">,</span> <span class="n">lower_hue</span><span class="p">,</span> <span class="n">upper_hue</span><span class="p">)</span>
+<span class="n">masked_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">hsv</span><span class="p">)</span>
+<span class="n">masked_image</span><span class="p">[</span><span class="n">mask_hsv</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">masked_image</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'HSV selection'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'HSV selection')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_81_1.png)</p>
+
+<h2 id="day-and-night-image-classifier">
+<a class="anchor" href="#day-and-night-image-classifier" aria-hidden="true"><span class="octicon octicon-link"></span></a>Day and Night Image Classifier</h2>
+
+<p>The day/night image dataset consists of 200 RGB color images in two categories: day and night. There are equal numbers of each example: 100 day images and 100 night images.</p>
+
+<p>We’d like to build a classifier that can accurately label these images as day or night, and that relies on finding distinguishing features between the two types of images!</p>
+
+<p><em>Note: All images come from the <a href="http://cs.uky.edu/~jacobs/datasets/amos/">AMOS dataset</a> (Archive of Many Outdoor Scenes).</em></p>
+
+<h2 id="training-and-testing-data">
+<a class="anchor" href="#training-and-testing-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Training and Testing Data</h2>
+<p>The 200 day/night images are separated into training and testing datasets.</p>
+
+<ul>
+  <li>60% of these images are training images, for you to use as you create a classifier.</li>
+  <li>40% are test images, which will be used to test the accuracy of your classifier.</li>
+</ul>
+
+<p>First, we set some variables to keep track of some where our images are stored:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>`image_dir_training`: the directory where our training image data is stored
+`image_dir_test`: the directory where our test image data is stored
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Image data directories
+</span><span class="n">image_dir_training</span> <span class="o">=</span> <span class="s">"training"</span>
+<span class="n">image_dir_test</span> <span class="o">=</span> <span class="s">"test"</span>
+</code></pre></div></div>
+
+<h2 id="load-the-datasets">
+<a class="anchor" href="#load-the-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Load the datasets</h2>
+
+<p>These first few lines of code will load the training day/night images and store all of them in a variable, <code class="highlighter-rouge">IMAGE_LIST</code>. This list contains the images and their associated label (“day” or “night”).</p>
+
+<p>For example, the first image-label pair in <code class="highlighter-rouge">IMAGE_LIST</code> can be accessed by index:</p>
+<pre><code class="language-IMAGE_LIST[0][:]```.">
+
+```python
+# Using the load_dataset function in helpers.py
+# Load training data
+IMAGE_LIST = helpers.load_dataset(image_dir_training)
+</code></pre>
+
+<p>Train dataset contains:</p>
+<ul>
+  <li>Images, classified as “day” or “night”;</li>
+  <li>It’s possible to access first pair “image-label” by index <code class="highlighter-rouge">0</code> - <code class="highlighter-rouge">IMAGE_LIST[0]</code>
+</li>
+  <li>To access label of e.g. first image - <code class="highlighter-rouge">IMAGE_LIST[0][0]</code>.</li>
+</ul>
+
+<h3 id="visualize-the-input-images">
+<a class="anchor" href="#visualize-the-input-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Visualize the input images</h3>
+
+<p>First, lets select an image and its label, print the shape.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Select an image and its label by list index
+</span><span class="n">image_index</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">selected_image</span> <span class="o">=</span> <span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">selected_label</span> <span class="o">=</span> <span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">selected_image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">selected_label</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(458, 800, 3)
+day
+</code></pre></div></div>
+
+<p>Display day and night images and check the difference between them.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># start with day image
+# convert it to RGB format
+</span>
+<span class="n">selected_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">selected_copy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">selected_copy</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">selected_copy</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'day')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_93_1.png)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Select an image and its label by list index
+</span><span class="n">image_index</span> <span class="o">=</span> <span class="mi">43</span>
+<span class="n">night_image</span> <span class="o">=</span> <span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">night_label</span> <span class="o">=</span> <span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">night_image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">night_label</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(458, 800, 3)
+night
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># pursue with night image
+# convert it to RGB format
+</span>
+<span class="n">night_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">night_copy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">night_copy</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">night_copy</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">[</span><span class="n">image_index</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'night')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_95_1.png)</p>
+
+<h3 id="standardize-images">
+<a class="anchor" href="#standardize-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Standardize images</h3>
+
+<p>Let’s create a class for <strong>input standartization</strong>.<br>
+Note, we need to standardize <strong>2 objects</strong>:</p>
+<ul>
+  <li>image;</li>
+  <li>its label (convert categorical to numerical).</li>
+</ul>
+
+<p>We will:</p>
+<ul>
+  <li>resize image with <strong>shape (600x1100 px)</strong>;</li>
+  <li>convert <strong>day to 1 and night to 0</strong>;</li>
+  <li>output a <strong>list of standardized</strong> images.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Standardize</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># self.image_list = image_list
+</span>        <span class="bp">self</span><span class="o">.</span><span class="n">standardized_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numerical_value</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># initialize the function
+</span>    <span class="k">def</span> <span class="nf">standardize_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">image_list</span><span class="p">:</span>
+            <span class="c1"># image has index 0
+</span>            <span class="c1"># label has index 1
+</span>            <span class="n">image</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="c1"># start with image resize
+</span>            <span class="n">image_std</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">1100</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+            <span class="n">label_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numerical_value</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="s">'night'</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">standardized_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">image_std</span><span class="p">,</span> <span class="n">label_binary</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardized_list</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s1</span> <span class="o">=</span> <span class="n">Standardize</span><span class="p">()</span>
+<span class="n">IMAGE_LIST_stand</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">standardize_input</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Length of standardized images dataset:"</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Length of original images dataset:"</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">IMAGE_LIST</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Length of standardized images dataset: 79
+Length of original images dataset: 79
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">example_img</span> <span class="o">=</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">example_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">example_img</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">example_img</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Image label:'</span><span class="p">,</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Image label: 1
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_101_1.png)</p>
+
+<h3 id="feature-extraction">
+<a class="anchor" href="#feature-extraction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feature extraction</h3>
+
+<p>Now, we are ready to separate these images on day and night based on average brightness. <br>
+This will be a single value and we assume, that <strong>average value for day will be higher</strong> than average value for night.<br>
+To calculate average  brightness we will use <strong>HSV colorspace</strong> - <strong>Value</strong> channel in particular: <em>we will sum it up and divide by area of image</em> (height multiplied by width).</p>
+
+<p>First of all, we will take a look at couple of day and night images. <br>
+Lets convert them from RGB to HSV.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># fist day image
+# use standardized list of images we prepared above
+</span><span class="n">img_day_1</span> <span class="o">=</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_day_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_day_1</span><span class="p">)</span>
+<span class="n">img_day_1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_day_1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+
+<span class="c1"># second day image
+</span><span class="n">img_day_2</span> <span class="o">=</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_day_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_day_2</span><span class="p">)</span>
+<span class="n">img_day_2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_day_2</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># fist night image
+</span><span class="n">img_night_1</span> <span class="o">=</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">43</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_night_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_night_1</span><span class="p">)</span>
+<span class="n">img_night_1</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_night_1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+
+<span class="c1"># second night image
+</span><span class="n">img_night_2</span> <span class="o">=</span> <span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">53</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_night_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_night_2</span><span class="p">)</span>
+<span class="n">img_night_2</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_night_2</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Below we display day and night images in HSV colorspace.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">image_day_1_h</span> <span class="o">=</span> <span class="n">img_day_1</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">image_day_1_s</span> <span class="o">=</span> <span class="n">img_day_1</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">image_day_1_v</span> <span class="o">=</span> <span class="n">img_day_1</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">,</span><span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Standardized day image 1'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_1_h</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Hue, day image 1'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_1_s</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Saturation, day image 1'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_1_v</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Value, day image 1'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, day image 1')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_108_1.png)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">image_day_2_h</span> <span class="o">=</span> <span class="n">img_day_2</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">image_day_2_s</span> <span class="o">=</span> <span class="n">img_day_2</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">image_day_2_v</span> <span class="o">=</span> <span class="n">img_day_2</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">,</span><span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Standardized day image 2'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_2_h</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Hue, image 2'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_2_s</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Saturation, image 2'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image_day_2_v</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Value, image 2'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, image 2')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_109_1.png)</p>
+
+<p>Based on days images we can say, that Value channel is high for the skies.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img_night_1_h</span> <span class="o">=</span> <span class="n">img_night_1</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_night_1_s</span> <span class="o">=</span> <span class="n">img_night_1</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">img_night_1_v</span> <span class="o">=</span> <span class="n">img_night_1</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">,</span><span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">43</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Standardized night image 1'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_1_h</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Hue, night image 1'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_1_s</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Saturation, night  image 1'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_1_v</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Value, night image 1'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, night image 1')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_111_1.png)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img_night_2_h</span> <span class="o">=</span> <span class="n">img_night_2</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">img_night_2_s</span> <span class="o">=</span> <span class="n">img_night_2</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">img_night_2_v</span> <span class="o">=</span> <span class="n">img_night_2</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">,</span><span class="n">ax2</span><span class="p">,</span><span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">[</span><span class="mi">53</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Standardized night image 2'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_2_h</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Hue, night image 2'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_2_s</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Saturation, night  image 2'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_night_2_v</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Value, night image 2'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, night image 2')
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_112_1.png)</p>
+
+<h3 id="find-average-brightness-using-v-channel">
+<a class="anchor" href="#find-average-brightness-using-v-channel" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find average brightness using V channel</h3>
+
+<p>Write the class that inputs entire list of standardized images and outputs following:<br></p>
+<ul>
+  <li>new list with added average brightness to <strong>tuple</strong>: pair of image, label;</li>
+  <li>visulalize <strong>distribution of night and day averages</strong>.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'ggplot'</span><span class="p">)</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AverageBrightness</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># define two functions: add value to pair
+</span>        <span class="c1"># and visualize distributions
+</span>        <span class="bp">self</span><span class="o">.</span><span class="n">list_with_bright</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">night_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">day_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">average_bright</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standardized_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">standardized_list</span><span class="p">:</span>
+            <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">hsv</span><span class="p">[:,:,</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">pxl</span> <span class="o">=</span> <span class="n">hsv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hsv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">aver_bright</span> <span class="o">=</span> <span class="n">value</span> <span class="o">/</span> <span class="n">pxl</span>
+            <span class="c1"># Note: we are adding item to a tuple! We use +(&lt;some item&gt;, )
+</span>            <span class="n">item</span> <span class="o">=</span> <span class="n">item</span> <span class="o">+</span> <span class="p">(</span><span class="n">aver_bright</span><span class="p">,)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list_with_bright</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_with_bright</span>
+    <span class="c1"># plot resulted average brightness with respect to day/night
+</span>    <span class="k">def</span> <span class="nf">plot_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_with_bright</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_with_bright</span><span class="p">:</span>
+            <span class="n">brightness_value</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">night_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">brightness_value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">day_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">brightness_value</span><span class="p">)</span>  
+        <span class="c1"># plot night average brightness
+</span>        <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">night_list</span><span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">night_list</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'k'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'dashed'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Night average brightness distribution'</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Night Mean value: '</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># plot day average brightness
+</span>        <span class="n">fig</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">day_list</span><span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">day_list</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'k'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">'dashed'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Day average brightness distribution'</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Day Mean value: '</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s1</span> <span class="o">=</span> <span class="n">AverageBrightness</span><span class="p">()</span>
+<span class="n">full_list</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">average_bright</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'Standardized list length:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Embedded list length:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_list</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Standardized list length: 79
+Embedded list length: 79
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s1</span><span class="o">.</span><span class="n">plot_brightness</span><span class="p">(</span><span class="n">full_list</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Night Mean value:  46.87
+Day Mean value:  151.35
+</code></pre></div></div>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_1.png)</p>
+
+<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_2.png)</p>
+
+<p>Next, our step will be to look at average brightness value for day and night images.<br>
+Our goal is to find a value (threshold), that clearly separates day and night.</p>
+
+<h3 id="classification">
+<a class="anchor" href="#classification" aria-hidden="true"><span class="octicon octicon-link"></span></a>Classification</h3>
+
+<p>Create <code class="highlighter-rouge">predicted_label</code> that will turn 1 for a day image and 0 for night image.<br>
+We will build <code class="highlighter-rouge">estimate_label</code> function that will input average brightness of an image and output an estimated label based on threshold. <br>
+Let’s set <strong>threshold value = 110</strong> for this classifier.</p>
+
+<p>Next we write a class called <code class="highlighter-rouge">SimpleClassifier</code> with <strong>input</strong>:</p>
+<ul>
+  <li>standardized list;<br>
+</li>
+</ul>
+
+<p>and <strong>output</strong>:</p>
+<ul>
+  <li>accuracy;</li>
+  <li>list of true/predicted labels.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># use RGB image as an output
+</span><span class="k">def</span> <span class="nf">estimate_label</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">):</span>
+    <span class="n">avg</span> <span class="o">=</span> <span class="n">average_brightness</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">)</span>
+    <span class="n">predicted_label</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mi">110</span>
+    <span class="n">predicted_label</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">avg</span> <span class="o">&gt;=</span><span class="n">threshold</span> <span class="k">else</span> <span class="n">predicted_label</span>
+    <span class="k">return</span> <span class="n">predicted_label</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- convert to HSV colorspace
+- sum up by Value
+- divide resulted sum by number of pixels
+"""</span>
+
+<span class="k">def</span> <span class="nf">average_brightness</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">):</span>
+    <span class="n">rgb_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">)</span>    
+    <span class="n">image_hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">rgb_image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+    <span class="c1"># add up all the pixel values in V channel
+</span>    <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">image_hsv</span><span class="p">[:,:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="c1"># multiply height and width
+</span>    <span class="n">pxl</span> <span class="o">=</span> <span class="n">image_hsv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">image_hsv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">average_value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="o">/</span><span class="n">pxl</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">average_value</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+ - Create a classifier object;
+ - Recall, each item in standardized image list consists of:
+   a) item[0] - image itself;
+   b) item[1] - true label;
+   c) item[2] - average brightness value;
+   d) item[3] - predicted label.
+
+"""</span>
+<span class="k">class</span> <span class="nc">SimpleClassifier</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">predict_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standardized_list</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">AverageBrightness</span><span class="p">()</span>
+        <span class="n">full_list</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">average_bright</span><span class="p">(</span><span class="n">standardized_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">full_list</span><span class="p">:</span>
+            <span class="n">brightness_value</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">brightness_value</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="c1"># will return 1 or 0 (day or night)
+</span>                <span class="n">item</span> <span class="o">=</span> <span class="n">item</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">item</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="c1"># check how many labels are classified right
+</span>            <span class="n">confusion_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">]</span>
+            <span class="n">accuracy</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">confusion_list</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">confusion_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">s2</span> <span class="o">=</span> <span class="n">SimpleClassifier</span><span class="p">()</span>
+<span class="n">estimated_labels_list</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">predict_label</span><span class="p">(</span><span class="n">IMAGE_LIST_stand</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mi">110</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'Accuracy of Simple Classifier: '</span><span class="p">,</span><span class="n">estimated_labels_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Accuracy of Simple Classifier:  0.85
+</code></pre></div></div>
+
+<h3 id="testing-classifier">
+<a class="anchor" href="#testing-classifier" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing classifier</h3>
+
+<p>Since we are using simple brightness as a feature, we do not expect a high accuracy for our classifier. <br>
+We aim to get <strong>75-85% of accuracy</strong> using a single feature.</p>
+
+<p>Loading the test data, we <strong>standardize and shuffle it</strong>: last ensures that the order of our data will not play a role in testing accuracy.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""
+- lead test dataset and apply standardize_input() function, that we created previously
+- shuffle data using random function
+"""</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="n">Standardize</span><span class="p">()</span>
+
+<span class="n">TEST_IMAGE_LIST</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">image_dir_test</span><span class="p">)</span>
+<span class="n">TEST_IMAGE_LIST_std</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">standardize_input</span><span class="p">(</span><span class="n">TEST_IMAGE_LIST</span><span class="p">)</span>
+
+<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">TEST_IMAGE_LIST_std</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Let’s <strong>rewrite classifier in functional form</strong>.  We will iterate through the <strong>test data images</strong> and add misclassified images and their labels into <code class="highlighter-rouge">misclassified_images_lables</code> list.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_misclassified_labels</span><span class="p">(</span><span class="n">test_images</span><span class="p">):</span>
+    <span class="c1"># create an empty list, whre we will pass images and corresponding labels
+</span>    <span class="n">misclassified_images_lables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># then we iterate through images
+</span>    <span class="c1"># classify them and compare to the labels
+</span>    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">test_images</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">true_label</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># apply created function
+</span>        <span class="n">predicted_label</span> <span class="o">=</span> <span class="n">estimate_label</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="c1"># compare labels and add them to misclassified_list
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">predicted_label</span> <span class="o">!=</span> <span class="n">true_label</span><span class="p">):</span>
+            <span class="n">misclassified_images_lables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">predicted_label</span><span class="p">,</span> <span class="n">true_label</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">misclassified_images_lables</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mis_classed_list</span> <span class="o">=</span> <span class="n">get_misclassified_labels</span><span class="p">(</span><span class="n">TEST_IMAGE_LIST_std</span><span class="p">)</span>
+<span class="n">total_images</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">TEST_IMAGE_LIST_std</span><span class="p">)</span>
+<span class="n">misclass</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mis_classed_list</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'Accuracy:'</span><span class="p">,</span> <span class="p">(</span><span class="n">total_images</span><span class="o">-</span><span class="n">misclass</span><span class="p">)</span><span class="o">/</span><span class="n">total_images</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Accuracy: 1.0
+</code></pre></div></div>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
 </code></pre></div></div>
