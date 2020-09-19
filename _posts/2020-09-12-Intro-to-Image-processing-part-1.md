@@ -75,7 +75,7 @@ plt.imshow(gray_img, cmap = 'gray')
 
 
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_11_1.png)
+![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_11_1.png)
 
 
 
@@ -150,7 +150,7 @@ plt.matshow(pixel, cmap = 'gray')
 
 
 
-![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_20_1.png)
+![png](https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_20_1.png)
 
 
 
@@ -181,7 +181,7 @@ plt.imshow(img)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_24_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_24_1.png)
 
 
 
@@ -228,7 +228,7 @@ ax3.imshow(b, cmap = 'gray')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_28_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_28_1.png)
 
 
 ## Background change
@@ -256,7 +256,7 @@ plt.imshow(img)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_33_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_33_1.png)
 
 
 > **Important note**: open-cv reads images as BGR, not RGB - as a result the output is different from original image.<br>
@@ -285,7 +285,7 @@ plt.imshow(img_copy)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_36_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_36_1.png)
 
 
 First,  define color a threshold. It will be a **lower and upper bounds** for the background I wnat to isolate.<br> Here we need to specify **3 values** - for each color - red, green and blue. <br>
@@ -362,7 +362,7 @@ plt.imshow(masked_img)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_46_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_46_1.png)
 
 
 ### Applying new background
@@ -385,7 +385,7 @@ plt.imshow(background_img)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_49_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_49_1.png)
 
 
 It's also important to crop background image to make it the same size as our robot image.
@@ -418,7 +418,7 @@ plt.imshow(crop_background_img)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_53_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_53_1.png)
 
 
 ### Final step: add object and new background together
@@ -440,7 +440,7 @@ plt.imshow(final_image)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_56_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_56_1.png)
 
 
 ## Object detection in HSV space
@@ -474,7 +474,7 @@ plt.imshow(img_copy)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_62_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_62_1.png)
 
 
 First, let's plot the color channels in RGB space.
@@ -509,7 +509,7 @@ ax3.imshow(blue, cmap = 'gray')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_64_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_64_1.png)
 
 
 We can see that pink balloons have high values for the red (close to 255, white color) and medium values for blue.<br>
@@ -550,7 +550,7 @@ ax3.imshow(value, cmap = 'gray')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_69_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_69_1.png)
 
 
 Compare this to our image. Take a look at pink balloons:
@@ -609,7 +609,7 @@ plt.title('RGB selection')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_78_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_78_1.png)
 
 
 Here we can see RGB colorspace:
@@ -639,7 +639,7 @@ plt.title('HSV selection')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_81_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_81_1.png)
 
 
 ## Day and Night Image Classifier
@@ -727,7 +727,7 @@ plt.title(IMAGE_LIST[image_index][1])
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_93_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_93_1.png)
 
 
 
@@ -764,7 +764,7 @@ plt.title(IMAGE_LIST[image_index][1])
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_95_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_95_1.png)
 
 
 ### Standardize images
@@ -832,7 +832,7 @@ print('Image label:', IMAGE_LIST_stand[0][1])
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_101_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_101_1.png)
 
 
 ### Feature extraction
@@ -899,7 +899,7 @@ ax3.set_title('Value, day image 1')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_108_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_108_1.png)
 
 
 
@@ -927,7 +927,7 @@ ax3.set_title('Value, image 2')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_109_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_109_1.png)
 
 
 Based on days images we can say, that Value channel is high for the skies.
@@ -958,7 +958,7 @@ ax3.set_title('Value, night image 1')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_111_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_111_1.png)
 
 
 
@@ -987,7 +987,7 @@ ax3.set_title('Value, night image 2')
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_112_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_112_1.png)
 
 
 ### Find average brightness using V channel
@@ -1074,11 +1074,11 @@ s1.plot_brightness(full_list)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_1.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_1.png)
 
 
 
-![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_2.png)
+![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_2.png)
 
 
 Next, our step will be to look at average brightness value for day and night images.<br>
