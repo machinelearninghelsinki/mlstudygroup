@@ -272,7 +272,7 @@ Min pixel value: 0
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec8de0b8&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_24_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_24_1.png" alt="png"></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'Shape of the image:'</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </code></pre></div></div>
@@ -307,7 +307,7 @@ Min pixel value: 0
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feb0295d550&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_28_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_28_1.png" alt="png"></p>
 
 <h2 id="background-change">
 <a class="anchor" href="#background-change" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background change</h2>
@@ -331,7 +331,7 @@ Consider the image of a robot below - we read it with open-cv library.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec56f6d8&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_33_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_33_1.png" alt="png"></p>
 
 <blockquote>
   <p><strong>Important note</strong>: open-cv reads images as BGR, not RGB - as a result the output is different from original image.<br>
@@ -354,7 +354,7 @@ In particular - red and blue colors are in <strong>reverse order</strong>.<br></
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec6dc4e0&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_36_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_36_1.png" alt="png"></p>
 
 <p>First,  define color a threshold. It will be a <strong>lower and upper bounds</strong> for the background I wnat to isolate.<br> Here we need to specify <strong>3 values</strong> - for each color - red, green and blue. <br></p>
 <ul>
@@ -397,7 +397,7 @@ It verifies each pixel whether it falls into specific range, defined by <strong>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec74afd0&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_41_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_41_1.png" alt="png"></p>
 
 <ul>
   <li>White area - area, where the new image background will be displayed.</li>
@@ -429,7 +429,7 @@ We will set them to black color.</li>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec47eba8&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_46_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_46_1.png" alt="png"></p>
 
 <h3 id="applying-new-background">
 <a class="anchor" href="#applying-new-background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Applying new background</h3>
@@ -445,7 +445,7 @@ We just take an image, (e.g. “space image” below and convert it from BGR to 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaec4e4630&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_49_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_49_1.png" alt="png"></p>
 
 <p>It’s also important to crop background image to make it the same size as our robot image.
 We crop it by height and width.</p>
@@ -468,7 +468,7 @@ We crop it by height and width.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaeb3c8278&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_53_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_53_1.png" alt="png"></p>
 
 <h3 id="final-step-add-object-and-new-background-together">
 <a class="anchor" href="#final-step-add-object-and-new-background-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Final step: add object and new background together</h3>
@@ -483,7 +483,7 @@ In this case simple summation will work, since we deal with matrices.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaeb425be0&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_56_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_56_1.png" alt="png"></p>
 
 <h2 id="object-detection-in-hsv-space">
 <a class="anchor" href="#object-detection-in-hsv-space" aria-hidden="true"><span class="octicon octicon-link"></span></a>Object detection in HSV space</h2>
@@ -513,7 +513,7 @@ Saturation and Value represents color as a mixture of shades and brightness.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaef450a58&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_62_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_62_1.png" alt="png"></p>
 
 <p>First, let’s plot the color channels in RGB space.</p>
 
@@ -540,7 +540,7 @@ Saturation and Value represents color as a mixture of shades and brightness.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaefa82630&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_64_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_64_1.png" alt="png"></p>
 
 <p>We can see that pink balloons have high values for the red (close to 255, white color) and medium values for blue.<br>
 However, there are many variations, especially if the balloon is in shadow.</p>
@@ -571,7 +571,7 @@ However, there are many variations, especially if the balloon is in shadow.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.image.AxesImage at 0x7feaf0b542b0&gt;
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_69_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_69_1.png" alt="png"></p>
 
 <p>Compare this to our image. Take a look at pink balloons:</p>
 <ul>
@@ -622,7 +622,7 @@ As previous we will use <code class="highlighter-rouge">inRage()</code> function
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'RGB selection')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_78_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_78_1.png" alt="png"></p>
 
 <p>Here we can see RGB colorspace:</p>
 <ul>
@@ -646,7 +646,7 @@ As previous we will use <code class="highlighter-rouge">inRage()</code> function
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'HSV selection')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_81_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_81_1.png" alt="png"></p>
 
 <h2 id="day-and-night-image-classifier">
 <a class="anchor" href="#day-and-night-image-classifier" aria-hidden="true"><span class="octicon octicon-link"></span></a>Day and Night Image Classifier</h2>
@@ -731,7 +731,7 @@ day
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'day')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_93_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_93_1.png" alt="png"></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Select an image and its label by list index
 </span><span class="n">image_index</span> <span class="o">=</span> <span class="mi">43</span>
@@ -758,7 +758,7 @@ night
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'night')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_95_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_95_1.png" alt="png"></p>
 
 <h3 id="standardize-images">
 <a class="anchor" href="#standardize-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Standardize images</h3>
@@ -821,7 +821,7 @@ Length of original images dataset: 79
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Image label: 1
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_101_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_101_1.png" alt="png"></p>
 
 <h3 id="feature-extraction">
 <a class="anchor" href="#feature-extraction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feature extraction</h3>
@@ -877,7 +877,7 @@ Lets convert them from RGB to HSV.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, day image 1')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_108_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_108_1.png" alt="png"></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">image_day_2_h</span> <span class="o">=</span> <span class="n">img_day_2</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">image_day_2_s</span> <span class="o">=</span> <span class="n">img_day_2</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
@@ -897,7 +897,7 @@ Lets convert them from RGB to HSV.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, image 2')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_109_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_109_1.png" alt="png"></p>
 
 <p>Based on days images we can say, that Value channel is high for the skies.</p>
 
@@ -920,7 +920,7 @@ Lets convert them from RGB to HSV.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, night image 1')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_111_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_111_1.png" alt="png"></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">img_night_2_h</span> <span class="o">=</span> <span class="n">img_night_2</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">img_night_2_s</span> <span class="o">=</span> <span class="n">img_night_2</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">]</span>
@@ -941,7 +941,7 @@ Lets convert them from RGB to HSV.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 1.0, 'Value, night image 2')
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_112_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_112_1.png" alt="png"></p>
 
 <h3 id="find-average-brightness-using-v-channel">
 <a class="anchor" href="#find-average-brightness-using-v-channel" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find average brightness using V channel</h3>
@@ -1019,9 +1019,9 @@ Embedded list length: 79
 Day Mean value:  151.35
 </code></pre></div></div>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_1.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_1.png" alt="png"></p>
 
-<p>![png]((https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_2.png)</p>
+<p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/open_cv/output_119_2.png" alt="png"></p>
 
 <p>Next, our step will be to look at average brightness value for day and night images.<br>
 Our goal is to find a value (threshold), that clearly separates day and night.</p>
