@@ -54,7 +54,7 @@ import cv2
 <li><code>number of channels = 3</code></li>
 </ul>
 <p>Later on, we will see that for many &quot;classical&quot; computer vision algorithms the color information is redundant. <br>
-For solving problems like edge, corner or blob detection, the grayscal image is enough.<br></p>
+For solving problems like edge, corner or blob detection, the grayscale image is enough.<br></p>
 <p>Let&apos;s use <code>cvtColor</code> function to convert RGB image to gray.</p>
 <pre><code class="language-python">gray_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 plt.imshow(gray_img, cmap = &apos;gray&apos;)</code></pre>
@@ -84,6 +84,588 @@ pixel.astype(int)</code></pre>
 <pre><code class="language-python">plt.matshow(pixel, cmap = &apos;gray&apos;)</code></pre>
 <pre><code>&lt;matplotlib.image.AxesImage at 0x7fdd7acd96d8&gt;</code></pre><p><img src="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_20_1.png" alt="png"></p>
 <pre><code class="language-python"></code></pre>
+<h2 id="color-isolating">Color isolating</h2>
+<pre><code class="language-python">%matplotlib inline</code></pre>
+<p>Let&apos;s read an image and see how we can visualize <strong>3 RBG colors individually</strong>.</p>
+<pre><code class="language-python">img = mpimg.imread(&apos;images/car.jpeg&apos;)
+plt.imshow(img)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec8de0b8&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_24_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_24_1.png</a>)</p>
+<pre><code class="language-python">print(&apos;Shape of the image:&apos;, img.shape)</code></pre>
+<pre><code>Shape of the image: (281, 500, 3)</code></pre><p>Since the color image is a tensor composed of 3 colors, we can express &quot;red&quot;, &quot;green&quot; and &quot;bleu&quot; as follows.</p>
+<pre><code class="language-python">r = img[:,:, 0] # red
+g = img[:,:, 1] # green
+b = img[:,:, 2] # blue
+print(&apos;Shape of individual color matrix:&apos;, r.shape)</code></pre>
+<pre><code>Shape of individual color matrix: (281, 500)</code></pre><pre><code class="language-python">f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize=(20,10))
+
+# visualize red
+ax1.set_title(&apos;R channel&apos;)
+ax1.imshow(r, cmap = &apos;gray&apos;)
+# green
+ax2.set_title(&apos;G channel&apos;)
+ax2.imshow(g, cmap = &apos;gray&apos;)
+# blue
+ax3.set_title(&apos;B channel&apos;)
+ax3.imshow(b, cmap = &apos;gray&apos;)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feb0295d550&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_28_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_28_1.png</a>)</p>
+<h2 id="background-change">Background change</h2>
+<h3 id="isolating-object-s-background">Isolating object&apos;s background</h3>
+<p><strong>Additional resources</strong>:</p>
+<ul>
+<li>Color picker to choose boundaries: <a href="https://www.w3schools.com/colors/colors_picker.asp">https://www.w3schools.com/colors/colors_picker.asp</a></li>
+</ul>
+<p>Suppose we have an image of an object on solid color background.<br>
+Consider the image of a robot below - we read it with open-cv library.</p>
+<pre><code class="language-python">img = cv2.imread(&apos;images/robot_blue.jpg&apos;)
+plt.imshow(img)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec56f6d8&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_33_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_33_1.png</a>)</p>
+<blockquote>
+<p><strong>Important note</strong>: open-cv reads images as BGR, not RGB - as a result the output is different from original image.<br>
+In particular - red and blue colors are in <strong>reverse order</strong>.<br></p>
+</blockquote>
+<p>Next, we take a copy of image and change it from BGR to RGB (pass parameter <code>cv2.COLOR_BGR2RGB</code>). <br>Note, that any transformations applied to a copy will not effect an image.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+- make a copy with numpy
+- change from BGR to RGB
+&quot;&quot;&quot;
+
+img_copy = np.copy(img)
+
+img_copy = cv2.cvtColor(img_copy, cv2.COLOR_BGR2RGB)
+plt.imshow(img_copy)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec6dc4e0&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_36_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_36_1.png</a>)</p>
+<p>First,  define color a threshold. It will be a <strong>lower and upper bounds</strong> for the background I wnat to isolate.<br> Here we need to specify <strong>3 values</strong> - for each color - red, green and blue. <br></p>
+<ul>
+<li><strong>Lower bound</strong>: red and green as zero, and high value for blue. For example, <code>230</code>.<br></li>
+<li><strong>Upper bound</strong>: red, green - some small values and blue - maximum, i.e. <code>250</code>. So, allow a bit red and green.<br></li>
+</ul>
+<p>All values within this range will be considered as <strong>intense blue color</strong>. This range will be replaced by another background.</p>
+<pre><code class="language-python">blue_lower = np.array([0, 0, 230])
+blue_upper = np.array([50, 50, 250])</code></pre>
+<h3 id="creating-mask">Creating mask</h3>
+<p>We are going to use a common way to isolate chosen area - <strong>creating a mask</strong>.<br>
+Now, we will isolate blue background area using <strong>inRange()</strong> function.<br>
+It verifies each pixel whether it falls into specific range, defined by <strong>lower and upper bounds</strong>. <br></p>
+<ul>
+<li>If it falls - the white mask will be displayed;</li>
+<li>If it does not fall within the range - pixel will be turned into black.</li>
+</ul>
+<p>Simply saying, <strong>everything inside the interval will be white</strong>.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+- function will take lower and upper bounds of image
+- and define the mask
+&quot;&quot;&quot;
+mask = cv2.inRange(img_copy, blue_lower, blue_upper)
+plt.imshow(mask, cmap = &apos;gray&apos;)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec74afd0&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_41_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_41_1.png</a>)</p>
+<ul>
+<li>White area - area, where the new image background will be displayed.</li>
+<li>Black area - where ew image background will be blocked out.</li>
+</ul>
+<p>The mask has the <strong>same height and width</strong>, and each pixel has 2 values:</p>
+<ul>
+<li>255 - for white area;</li>
+<li>0 - for black area.</li>
+</ul>
+<p>Now, let&apos;s put our object into a mask.</p>
+<ul>
+<li>First of all, create a <strong>copy of image</strong> (just if we want to change it later on).<br></li>
+<li>Then, one way to separate blue background from this is to check where <strong>blue pixels intersect with mask white pixels</strong>, or in other words - <strong>do not intersect with black (not equal 0)</strong>.<br>
+We will set them to black color.</li>
+</ul>
+<p>Displaying an image, we will see that only object appears on a black background.</p>
+<pre><code class="language-python">masked_img = np.copy(img_copy)
+masked_img[mask!=0] = [0,0,0]
+
+plt.imshow(masked_img)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec47eba8&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_46_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_46_1.png</a>)</p>
+<h3 id="applying-new-background">Applying new background</h3>
+<p>Next step will be just to apply <strong>new background on top of black one</strong>. <br>
+We just take an image, (e.g. &quot;space image&quot; below and convert it from BGR to RGB). <br></p>
+<pre><code class="language-python">background_img = cv2.imread(&apos;images/background_img.jpg&apos;)
+background_img = cv2.cvtColor(background_img, cv2.COLOR_BGR2RGB)
+plt.imshow(background_img)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaec4e4630&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_49_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_49_1.png</a>)</p>
+<p>It&apos;s also important to crop background image to make it the same size as our robot image.
+We crop it by height and width.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+- cropping to a size of (720, 1280)
+&quot;&quot;&quot;
+
+crop_background_img = background_img[0:720, 0:1280]</code></pre>
+<p>Now, we will do an opposite operation with a cropped background image: choose <strong>pixels that are equal to 0 in mask image</strong> (there we had black robot) and set these pixels to a <strong>black on cropped background image</strong>. <br></p>
+<p>Simply saying, we merge <code>mask</code> and <code>crop_background_img</code>.</p>
+<pre><code class="language-python">crop_background_img[mask == 0] = [0,0,0]
+plt.imshow(crop_background_img)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaeb3c8278&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_53_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_53_1.png</a>)</p>
+<h3 id="final-step-add-object-and-new-background-together">Final step: add object and new background together</h3>
+<p>Since the black area on cropped background image is equivalent to 0, we can add this image to masked image.<br>
+In this case simple summation will work, since we deal with matrices.</p>
+<pre><code class="language-python">final_image = crop_background_img + masked_img
+plt.imshow(final_image)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaeb425be0&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_56_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_56_1.png</a>)</p>
+<h2 id="object-detection-in-hsv-space">Object detection in HSV space</h2>
+<h3 id="hsv-colorspace">HSV colorspace</h3>
+<p>HSV colorspace is similar to RGB and also represents 3 channel - <strong>hue</strong>, <strong>saturation</strong> and <strong>value</strong>.<br>
+This space is commonly used in tasks like image segmentation.<br> In HSV colorspace Hue channel models color type, while
+Saturation and Value represents color as a mixture of shades and brightness.</p>
+<blockquote>
+<p>Since the hue channel models the color type, it is very useful in image processing tasks that need to segment objects based on its color. Variation of the saturation goes from unsaturated to represent shades of gray and fully saturated (no white component). Value channel describes the brightness or the intensity of the color.</p>
+</blockquote>
+<p>Source: <a href="https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html">https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html</a></p>
+<p>We will start with image displaying. We will use both RGB and HSV color spaces to detect the balloons in the image.</p>
+<pre><code class="language-python">img = cv2.imread(&apos;images/baloons.jpg&apos;)
+img_copy = np.copy(img)
+
+img_copy = cv2.cvtColor(img_copy, cv2.COLOR_BGR2RGB)
+plt.imshow(img_copy)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaef450a58&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_62_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_62_1.png</a>)</p>
+<p>First, let&apos;s plot the color channels in RGB space.</p>
+<pre><code class="language-python"># RGB channels
+# we take all pixels, but isolate the color we need
+
+red = img_copy[:,:,0]
+green = img_copy[:,:,1]
+blue = img_copy[:,:,2]
+
+# now, plot each of this colors in gray scale to see the relative intensities
+f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize = (20,10))
+
+ax1.set_title(&apos;Red scale&apos;)
+ax1.imshow(red, cmap = &apos;gray&apos;)
+
+ax2.set_title(&apos;Green scale&apos;)
+ax2.imshow(green, cmap = &apos;gray&apos;)
+
+ax3.set_title(&apos;Blue scale&apos;)
+ax3.imshow(blue, cmap = &apos;gray&apos;)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaefa82630&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_64_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_64_1.png</a>)</p>
+<p>We can see that pink balloons have high values for the red (close to 255, white color) and medium values for blue.<br>
+However, there are many variations, especially if the balloon is in shadow.</p>
+<p>Next, we convert image from RGB to HSV.</p>
+<pre><code class="language-python">hsv = cv2.cvtColor(img_copy, cv2.COLOR_RGB2HSV)</code></pre>
+<p>Now, we isolate each of these channels as we did before.</p>
+<pre><code class="language-python">hue = hsv[:,:,0]
+saturation = hsv[:,:,1]
+value = hsv[:,:,2]
+
+
+f, (ax1, ax2, ax3) = plt.subplots(1,3, figsize = (20,10))
+ax1.set_title(&apos;Hue&apos;)
+ax1.imshow(hue, cmap = &apos;gray&apos;)
+
+ax2.set_title(&apos;Saturation&apos;)
+ax2.imshow(saturation, cmap = &apos;gray&apos;)
+
+ax3.set_title(&apos;Value&apos;)
+ax3.imshow(value, cmap = &apos;gray&apos;)</code></pre>
+<pre><code>&lt;matplotlib.image.AxesImage at 0x7feaf0b542b0&gt;</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_69_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_69_1.png</a>)</p>
+<p>Compare this to our image. Take a look at pink balloons:</p>
+<ul>
+<li>Hue has <strong>high values</strong> for pink balloons, and even in shadow <strong>hue level is pretty consistent</strong>;</li>
+<li>Saturation values are quite versatile depending on shadow.</li>
+</ul>
+<h3 id="create-thresholds-for-pink-color-in-rgb-and-hsv">Create thresholds for pink color in RGB and HSV</h3>
+<p>Now, create lower and upper bounds for pink color in RGB and then in HSV spaces.</p>
+<pre><code class="language-python"># use thrashold for pink color in RGB
+# link to check: https://www.w3schools.com/colors/colors_rgb.asp
+
+lower_pink = np.array([180,0,100])
+upper_pink = np.array([255,255,230])</code></pre>
+<p>Then, do the same for HSV.<br>
+Remember, that <strong>hue goes from 0 to 180 degrees</strong>. We will limit this from 160 to 180.<br>
+Will allow any values for saturation and value from 0 to 255.</p>
+<pre><code class="language-python">lower_hue = np.array([140,0,0])
+upper_hue = np.array([180,255,255])</code></pre>
+<h3 id="mask-the-images">Mask the images</h3>
+<p>Now, we will create a mask to see <strong>how well these thresholds select the pink balloons</strong>.<br>
+As previous we will use <code>inRage()</code> function and apply mask afterwards.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+- first we create mask based on lower and upper bounds. Mask will assign 0 to all pixels that are out of these interval.
+- then we make all pixels, intersecting with black color (have 0 values) black (assign to [0,0,0]).
+- isolate pink color
+&quot;&quot;&quot;
+
+mask_rgb = cv2.inRange(img_copy, lower_pink, upper_pink)
+masked_image = np.copy(img_copy)
+masked_image[mask_rgb == 0] = [0,0,0]
+
+plt.imshow(masked_image)
+plt.title(&apos;RGB selection&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;RGB selection&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_78_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_78_1.png</a>)</p>
+<p>Here we can see RGB colorspace:</p>
+<ul>
+<li>Does not select all pink balloons (or ones that are in shadow);</li>
+<li>Selects some other colors.</li>
+</ul>
+<p>Finally, repeat the procedure for HSV colorspace.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+ - note, we will use hsv image (RGB2HSV)
+&quot;&quot;&quot;
+mask_hsv = cv2.inRange( hsv, lower_hue, upper_hue)
+masked_image = np.copy(hsv)
+masked_image[mask_hsv == 0] = [0,0,0]
+
+plt.imshow(masked_image)
+plt.title(&apos;HSV selection&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;HSV selection&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_81_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_81_1.png</a>)</p>
+<h2 id="day-and-night-image-classifier">Day and Night Image Classifier</h2>
+<p>The day/night image dataset consists of 200 RGB color images in two categories: day and night. There are equal numbers of each example: 100 day images and 100 night images.</p>
+<p>We&apos;d like to build a classifier that can accurately label these images as day or night, and that relies on finding distinguishing features between the two types of images!</p>
+<p><em>Note: All images come from the <a href="http://cs.uky.edu/~jacobs/datasets/amos/">AMOS dataset</a> (Archive of Many Outdoor Scenes).</em></p>
+<h2 id="training-and-testing-data">Training and Testing Data</h2>
+<p>The 200 day/night images are separated into training and testing datasets.</p>
+<ul>
+<li>60% of these images are training images, for you to use as you create a classifier.</li>
+<li>40% are test images, which will be used to test the accuracy of your classifier.</li>
+</ul>
+<p>First, we set some variables to keep track of some where our images are stored:</p>
+<pre><code>`image_dir_training`: the directory where our training image data is stored
+`image_dir_test`: the directory where our test image data is stored</code></pre><pre><code class="language-python"># Image data directories
+image_dir_training = &quot;training&quot;
+image_dir_test = &quot;test&quot;</code></pre>
+<h2 id="load-the-datasets">Load the datasets</h2>
+<p>These first few lines of code will load the training day/night images and store all of them in a variable, <code>IMAGE_LIST</code>. This list contains the images and their associated label (&quot;day&quot; or &quot;night&quot;).</p>
+<p>For example, the first image-label pair in <code>IMAGE_LIST</code> can be accessed by index:</p>
+<pre><code class="language-IMAGE_LIST[0][:]```.">
+
+```python
+# Using the load_dataset function in helpers.py
+# Load training data
+IMAGE_LIST = helpers.load_dataset(image_dir_training)</code></pre>
+<p>Train dataset contains:</p>
+<ul>
+<li>Images, classified as &quot;day&quot; or &quot;night&quot;;</li>
+<li>It&apos;s possible to access first pair &quot;image-label&quot; by index <code>0</code> - <code>IMAGE_LIST[0]</code></li>
+<li>To access label of e.g. first image - <code>IMAGE_LIST[0][0]</code>.</li>
+</ul>
+<h3 id="visualize-the-input-images">Visualize the input images</h3>
+<p>First, lets select an image and its label, print the shape.</p>
+<pre><code class="language-python"># Select an image and its label by list index
+image_index = 0
+selected_image = IMAGE_LIST[image_index][0]
+selected_label = IMAGE_LIST[image_index][1]
+
+print(selected_image.shape)
+print(selected_label)</code></pre>
+<pre><code>(458, 800, 3)
+day</code></pre><p>Display day and night images and check the difference between them.</p>
+<pre><code class="language-python"># start with day image
+# convert it to RGB format
+
+selected_copy = np.copy(IMAGE_LIST[image_index][0])
+selected_copy = cv2.cvtColor(selected_copy, cv2.COLOR_BGR2RGB)
+plt.imshow(selected_copy, cmap = &apos;gray&apos;)
+plt.title(IMAGE_LIST[image_index][1])</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;day&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_93_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_93_1.png</a>)</p>
+<pre><code class="language-python"># Select an image and its label by list index
+image_index = 43
+night_image = IMAGE_LIST[image_index][0]
+night_label = IMAGE_LIST[image_index][1]
+
+print(night_image.shape)
+print(night_label)</code></pre>
+<pre><code>(458, 800, 3)
+night</code></pre><pre><code class="language-python"># pursue with night image
+# convert it to RGB format
+
+night_copy = np.copy(IMAGE_LIST[image_index][0])
+night_copy = cv2.cvtColor(night_copy, cv2.COLOR_BGR2RGB)
+plt.imshow(night_copy, cmap = &apos;gray&apos;)
+plt.title(IMAGE_LIST[image_index][1])</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;night&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_95_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_95_1.png</a>)</p>
+<h3 id="standardize-images">Standardize images</h3>
+<p>Let&apos;s create a class for <strong>input standartization</strong>.<br>
+Note, we need to standardize <strong>2 objects</strong>:</p>
+<ul>
+<li>image;</li>
+<li>its label (convert categorical to numerical).</li>
+</ul>
+<p>We will:</p>
+<ul>
+<li>resize image with <strong>shape (600x1100 px)</strong>;</li>
+<li>convert <strong>day to 1 and night to 0</strong>;</li>
+<li>output a <strong>list of standardized</strong> images.</li>
+</ul>
+<pre><code class="language-python">class Standardize():
+    def __init__(self):
+        # self.image_list = image_list
+        self.standardized_list = []
+        self.numerical_value = 0
+
+    # initialize the function
+    def standardize_input(self, image_list):
+        for item in image_list:
+            # image has index 0
+            # label has index 1
+            image = item[0]
+            label = item[1]
+            image = np.copy(image)
+            label = np.copy(label)
+            # start with image resize
+            image_std = cv2.resize(image, (1100, 600))
+            label_binary = self.numerical_value if label == &apos;night&apos; else 1
+            self.standardized_list.append((image_std, label_binary))
+        return self.standardized_list</code></pre>
+<pre><code class="language-python">s1 = Standardize()
+IMAGE_LIST_stand = s1.standardize_input(IMAGE_LIST)</code></pre>
+<pre><code class="language-python">print(&quot;Length of standardized images dataset:&quot;,len(IMAGE_LIST_stand))
+print(&quot;Length of original images dataset:&quot;,len(IMAGE_LIST))</code></pre>
+<pre><code>Length of standardized images dataset: 79
+Length of original images dataset: 79</code></pre><pre><code class="language-python">example_img = IMAGE_LIST_stand[0][0]
+example_img = np.copy(example_img)
+
+plt.imshow(example_img)
+print(&apos;Image label:&apos;, IMAGE_LIST_stand[0][1])</code></pre>
+<pre><code>Image label: 1</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_101_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_101_1.png</a>)</p>
+<h3 id="feature-extraction">Feature extraction</h3>
+<p>Now, we are ready to separate these images on day and night based on average brightness. <br>
+This will be a single value and we assume, that <strong>average value for day will be higher</strong> than average value for night.<br>
+To calculate average  brightness we will use <strong>HSV colorspace</strong> - <strong>Value</strong> channel in particular: <em>we will sum it up and divide by area of image</em> (height multiplied by width).</p>
+<p>First of all, we will take a look at couple of day and night images. <br>
+Lets convert them from RGB to HSV.</p>
+<pre><code class="language-python"># fist day image
+# use standardized list of images we prepared above
+img_day_1 = IMAGE_LIST_stand[0][0]
+img_day_1 = np.array(img_day_1)
+img_day_1 = cv2.cvtColor(img_day_1, cv2.COLOR_RGB2HSV)
+
+# second day image
+img_day_2 = IMAGE_LIST_stand[1][0]
+img_day_2 = np.array(img_day_2)
+img_day_2 = cv2.cvtColor(img_day_2, cv2.COLOR_RGB2HSV)</code></pre>
+<pre><code class="language-python"># fist night image
+img_night_1 = IMAGE_LIST_stand[43][0]
+img_night_1 = np.array(img_night_1)
+img_night_1 = cv2.cvtColor(img_night_1, cv2.COLOR_RGB2HSV)
+
+# second night image
+img_night_2 = IMAGE_LIST_stand[53][0]
+img_night_2 = np.array(img_night_2)
+img_night_2 = cv2.cvtColor(img_night_2, cv2.COLOR_RGB2HSV)</code></pre>
+<p>Below we display day and night images in HSV colorspace.</p>
+<pre><code class="language-python">image_day_1_h = img_day_1[:,:,0]
+image_day_1_s = img_day_1[:,:,1]
+image_day_1_v = img_day_1[:,:,2]
+
+fig, (ax0, ax1,ax2,ax3) = plt.subplots(1,4, figsize = (20,10))
+
+ax0.imshow(IMAGE_LIST_stand[0][0])
+ax0.set_title(&apos;Standardized day image 1&apos;)
+ax1.imshow(image_day_1_h, cmap = &apos;gray&apos;)
+ax1.set_title(&apos;Hue, day image 1&apos;)
+ax2.imshow(image_day_1_s, cmap = &apos;gray&apos;)
+ax2.set_title(&apos;Saturation, day image 1&apos;)
+ax3.imshow(image_day_1_v, cmap = &apos;gray&apos;)
+ax3.set_title(&apos;Value, day image 1&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;Value, day image 1&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_108_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_108_1.png</a>)</p>
+<pre><code class="language-python">image_day_2_h = img_day_2[:,:,0]
+image_day_2_s = img_day_2[:,:,1]
+image_day_2_v = img_day_2[:,:,2]
+
+fig, (ax0, ax1,ax2,ax3) = plt.subplots(1,4, figsize = (20,10))
+ax0.imshow(IMAGE_LIST_stand[1][0])
+ax0.set_title(&apos;Standardized day image 2&apos;)
+ax1.imshow(image_day_2_h, cmap = &apos;gray&apos;)
+ax1.set_title(&apos;Hue, image 2&apos;)
+ax2.imshow(image_day_2_s, cmap = &apos;gray&apos;)
+ax2.set_title(&apos;Saturation, image 2&apos;)
+ax3.imshow(image_day_2_v, cmap = &apos;gray&apos;)
+ax3.set_title(&apos;Value, image 2&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;Value, image 2&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_109_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_109_1.png</a>)</p>
+<p>Based on days images we can say, that Value channel is high for the skies.</p>
+<pre><code class="language-python">img_night_1_h = img_night_1[:,:,0]
+img_night_1_s = img_night_1[:,:,1]
+img_night_1_v = img_night_1[:,:,2]
+
+fig, (ax0, ax1,ax2,ax3) = plt.subplots(1,4, figsize = (20,10))
+
+ax0.imshow(IMAGE_LIST_stand[43][0])
+ax0.set_title(&apos;Standardized night image 1&apos;)
+ax1.imshow(img_night_1_h, cmap = &apos;gray&apos;)
+ax1.set_title(&apos;Hue, night image 1&apos;)
+ax2.imshow(img_night_1_s, cmap = &apos;gray&apos;)
+ax2.set_title(&apos;Saturation, night  image 1&apos;)
+ax3.imshow(img_night_1_v, cmap = &apos;gray&apos;)
+ax3.set_title(&apos;Value, night image 1&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;Value, night image 1&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_111_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_111_1.png</a>)</p>
+<pre><code class="language-python">img_night_2_h = img_night_2[:,:,0]
+img_night_2_s = img_night_2[:,:,1]
+img_night_2_v = img_night_2[:,:,2]
+
+fig, (ax0, ax1,ax2,ax3) = plt.subplots(1,4, figsize = (20,10))
+
+ax0.imshow(IMAGE_LIST_stand[53][0])
+ax0.set_title(&apos;Standardized night image 2&apos;)
+ax1.imshow(img_night_2_h, cmap = &apos;gray&apos;)
+ax1.set_title(&apos;Hue, night image 2&apos;)
+ax2.imshow(img_night_2_s, cmap = &apos;gray&apos;)
+ax2.set_title(&apos;Saturation, night  image 2&apos;)
+ax3.imshow(img_night_2_v, cmap = &apos;gray&apos;)
+ax3.set_title(&apos;Value, night image 2&apos;)</code></pre>
+<pre><code>Text(0.5, 1.0, &apos;Value, night image 2&apos;)</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_112_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_112_1.png</a>)</p>
+<h3 id="find-average-brightness-using-v-channel">Find average brightness using V channel</h3>
+<p>Write the class that inputs entire list of standardized images and outputs following:<br></p>
+<ul>
+<li>new list with added average brightness to <strong>tuple</strong>: pair of image, label;</li>
+<li>visulalize <strong>distribution of night and day averages</strong>.</li>
+</ul>
+<pre><code class="language-python">plt.style.use(&apos;ggplot&apos;)
+%matplotlib inline</code></pre>
+<pre><code class="language-python">class AverageBrightness():
+
+    def __init__(self):
+        # define two functions: add value to pair
+        # and visualize distributions
+        self.list_with_bright = []
+        self.night_list = []
+        self.day_list = []
+    def average_bright(self, standardized_list):
+        for item in standardized_list:
+            rgb_image = item[0]
+            hsv = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2HSV)
+            value = np.sum(hsv[:,:,2])
+            pxl = hsv.shape[0] * hsv.shape[1]
+            aver_bright = value / pxl
+            # Note: we are adding item to a tuple! We use +(&lt;some item&gt;, )
+            item = item + (aver_bright,)
+            self.list_with_bright.append(item)
+        return self.list_with_bright
+    # plot resulted average brightness with respect to day/night
+    def plot_brightness(self, list_with_bright):
+        for item in list_with_bright:
+            brightness_value = item[2]
+            if item[1]==0:
+                self.night_list.append(brightness_value)
+            else:
+                self.day_list.append(brightness_value)  
+        # plot night average brightness
+        fig, ax1 = plt.subplots(figsize = (10,6))
+        mean = np.mean(self.night_list)
+        sns.distplot(self.night_list)
+        ax1.axvline(mean, color=&apos;k&apos;, linestyle=&apos;dashed&apos;, linewidth=0.8)
+        ax1.set_title(&apos;Night average brightness distribution&apos;)
+        print(&apos;Night Mean value: &apos;, round(mean,2))
+
+        # plot day average brightness
+        fig, ax2 = plt.subplots(figsize = (10,6))
+        mean = np.mean(self.day_list)
+        sns.distplot(self.day_list)
+        ax2.axvline(mean, color=&apos;k&apos;, linestyle=&apos;dashed&apos;, linewidth=0.8)
+        ax2.set_title(&apos;Day average brightness distribution&apos;)
+        print(&apos;Day Mean value: &apos;, round(mean,2))</code></pre>
+<pre><code class="language-python">s1 = AverageBrightness()
+full_list = s1.average_bright(IMAGE_LIST_stand)</code></pre>
+<pre><code class="language-python">print(&apos;Standardized list length:&apos;, len(IMAGE_LIST_stand))
+print(&apos;Embedded list length:&apos;, len(full_list))</code></pre>
+<pre><code>Standardized list length: 79
+Embedded list length: 79</code></pre><pre><code class="language-python">s1.plot_brightness(full_list)</code></pre>
+<pre><code>Night Mean value:  46.87
+Day Mean value:  151.35</code></pre><p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_1.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_1.png</a>)</p>
+<p>![png]((<a href="https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_2.png">https://github.com/MakarovArtyom/mlstudygroup/tree/master/images/output_119_2.png</a>)</p>
+<p>Next, our step will be to look at average brightness value for day and night images.<br>
+Our goal is to find a value (threshold), that clearly separates day and night.</p>
+<h3 id="classification">Classification</h3>
+<p>Create <code>predicted_label</code> that will turn 1 for a day image and 0 for night image.<br>
+We will build <code>estimate_label</code> function that will input average brightness of an image and output an estimated label based on threshold. <br>
+Let&apos;s set <strong>threshold value = 110</strong> for this classifier.  </p>
+<p>Next we write a class called <code>SimpleClassifier</code> with <strong>input</strong>:</p>
+<ul>
+<li>standardized list;<br></li>
+</ul>
+<p>and <strong>output</strong>:</p>
+<ul>
+<li>accuracy;</li>
+<li>list of true/predicted labels.</li>
+</ul>
+<pre><code class="language-python"># use RGB image as an output
+def estimate_label(rgb_image):
+    avg = average_brightness(rgb_image)
+    predicted_label = 0
+    threshold = 110
+    predicted_label = 1 if avg &gt;=threshold else predicted_label
+    return predicted_label</code></pre>
+<pre><code class="language-python">&quot;&quot;&quot;
+- convert to HSV colorspace
+- sum up by Value
+- divide resulted sum by number of pixels
+&quot;&quot;&quot;
+
+def average_brightness(rgb_image):
+    rgb_image = np.copy(rgb_image)    
+    image_hsv = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2HSV)
+    # add up all the pixel values in V channel
+    value = np.sum(image_hsv[:,:, 2])
+    # multiply height and width
+    pxl = image_hsv.shape[0] * image_hsv.shape[1]
+    average_value = round(value/pxl,3)
+    return average_value</code></pre>
+<pre><code class="language-python">&quot;&quot;&quot;
+ - Create a classifier object;
+ - Recall, each item in standardized image list consists of:
+   a) item[0] - image itself;
+   b) item[1] - true label;
+   c) item[2] - average brightness value;
+   d) item[3] - predicted label.
+
+&quot;&quot;&quot;
+class SimpleClassifier():
+    def __init__(self):
+        self.predictions = []
+    def predict_label(self, standardized_list, threshold):
+        s1 = AverageBrightness()
+        full_list = s1.average_bright(standardized_list)
+        for item in full_list:
+            brightness_value = item[2]
+            if brightness_value &gt;= threshold:
+                # will return 1 or 0 (day or night)
+                item = item + (1,)
+            else:
+                item = item + (0,)
+            self.predictions.append((item[1], item[3]))
+            # check how many labels are classified right
+            confusion_list = [i[0]==i[1] for i in self.predictions]
+            accuracy = sum(confusion_list) / len(confusion_list)
+        return self.predictions, round(accuracy, 2)</code></pre>
+<pre><code class="language-python">s2 = SimpleClassifier()
+estimated_labels_list = s2.predict_label(IMAGE_LIST_stand, threshold = 110)</code></pre>
+<pre><code class="language-python">print(&apos;Accuracy of Simple Classifier: &apos;,estimated_labels_list[1])</code></pre>
+<pre><code>Accuracy of Simple Classifier:  0.85</code></pre><h3 id="testing-classifier">Testing classifier</h3>
+<p>Since we are using simple brightness as a feature, we do not expect a high accuracy for our classifier. <br>
+We aim to get <strong>75-85% of accuracy</strong> using a single feature.</p>
+<p>Loading the test data, we <strong>standardize and shuffle it</strong>: last ensures that the order of our data will not play a role in testing accuracy.</p>
+<pre><code class="language-python">&quot;&quot;&quot;
+- lead test dataset and apply standardize_input() function, that we created previously
+- shuffle data using random function
+&quot;&quot;&quot;
+import random
+s1 = Standardize()
+
+TEST_IMAGE_LIST = helpers.load_dataset(image_dir_test)
+TEST_IMAGE_LIST_std = s1.standardize_input(TEST_IMAGE_LIST)
+
+random.shuffle(TEST_IMAGE_LIST_std)</code></pre>
+<p>Let&apos;s <strong>rewrite classifier in functional form</strong>.  We will iterate through the <strong>test data images</strong> and add misclassified images and their labels into <code>misclassified_images_lables</code> list.</p>
+<pre><code class="language-python">def get_misclassified_labels(test_images):
+    # create an empty list, whre we will pass images and corresponding labels
+    misclassified_images_lables = []
+    # then we iterate through images
+    # classify them and compare to the labels
+    for item in test_images:
+        img = item[0]
+        true_label = item[1]
+        # apply created function
+        predicted_label = estimate_label(img)
+        # compare labels and add them to misclassified_list
+        if (predicted_label != true_label):
+            misclassified_images_lables.append((img, predicted_label, true_label))
+    return misclassified_images_lables</code></pre>
+<pre><code class="language-python">mis_classed_list = get_misclassified_labels(TEST_IMAGE_LIST_std)
+total_images = len(TEST_IMAGE_LIST_std)
+misclass = len(mis_classed_list)
+
+print(&apos;Accuracy:&apos;, (total_images-misclass)/total_images)</code></pre>
+<pre><code>Accuracy: 1.0</code></pre><pre><code class="language-python"></code></pre>
 </article></div><div style="background-color: #b4b2b2;width: 50px;height:50px;line-height: 50px;text-align: center;position: fixed;bottom: 10px;right: 10px;padding-top:5px;" onclick="document.documentElement.scrollTop = document.body.scrollTop =0;">
   <svg t="1533629773982" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1035" xlink="http://www.w3.org/1999/xlink" width="40" height="40"><defs><style type="text/css">@font-face { font-family: uc-nexus-iconfont; src: url("chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.woff") format("woff"), url("chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.ttf") format("truetype"); }
   </style></defs><path d="M536.255427 195.182354c-7.804756-7.804756-17.966187-11.615549-28.311813-11.615549-9.43693 0-18.874883 3.449565-26.496467 10.163477-2.360767 1.452071-4.356214 3.267417-6.352685 5.262864L218.47792 455.611735c-15.607466 15.60542-15.607466 40.834011 0 56.43943 15.607466 15.607466 41.558511 15.607466 57.167001 0l193.46013-192.733583 0 600.526219c0 22.1423 17.787108 39.927361 39.927361 39.927361 22.140253 0 39.927361-17.785062 39.927361-39.927361L548.959773 319.317583 737.15704 508.422522c15.607466 15.607466 40.469714 15.607466 56.078203 0 15.607466-15.607466 15.425318-40.834011-0.182149-56.441477L536.255427 195.182354 536.255427 195.182354z" p-id="1036" fill="#333"/><path d="M101.784174 143.097092l816.674071 0c22.140253 0 39.925315-17.785062 39.925315-39.927361 0-22.140253-17.784038-39.925315-39.925315-39.925315L101.784174 63.244416c-22.140253 0-39.927361 17.785062-39.927361 39.925315C61.856813 125.31203 79.643921 143.097092 101.784174 143.097092L101.784174 143.097092z" p-id="1037" fill="#333"/></svg>
