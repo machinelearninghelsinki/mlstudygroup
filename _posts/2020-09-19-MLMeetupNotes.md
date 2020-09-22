@@ -19,7 +19,7 @@ title: Meetup Sept 19 2020 (Notes)
 | Link | Description |
 |-|-|
 | [Advanced ML course](https://www.edx.org/course/advanced-machine-learning) | EDX link for Advanced ML course |
-| [OSCAR Open Super-large Crawled ALMAnaCH coRpus](https://oscar-corpus.com/) | Multilingual corpus obtained by language classification and filtering |
+| [OSCAR Open Super-large Crawled ALMAnaCH coRpus](https://oscar-corpus.com/ | Multilingual corpus obtained by language classification and filtering |
 
 ## Some relevant Youtube resources
 
