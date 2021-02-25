@@ -69,8 +69,3 @@ We are going to talk about the image points correspondence first.
 - Disparity in a simple words - difference of X coordinates between point in left and right images.
 <br>
 ![]({{ site.baseurl }}/images/stereo_vision/10.png "Disparity map")
-
-## Reference
-<br>
-Udacity Introduction to Computer Vision:<br>
-https://classroom.udacity.com/courses/ud810
