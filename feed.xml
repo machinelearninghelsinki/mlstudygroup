@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://machinelearninghelsinki.github.io/mlstudygroup/feed.xml" rel="self" type="application/atom+xml" /><link href="https://machinelearninghelsinki.github.io/mlstudygroup/" rel="alternate" type="text/html" /><updated>2021-02-25T06:05:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/feed.xml</id><title type="html">Machine Learning Study Group</title><subtitle>An easy to use blogging platform with support for Jupyter Notebooks.</subtitle><entry><title type="html">VeloxMobo - mobile robot development</title><link href="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo.html" rel="alternate" type="text/html" title="VeloxMobo - mobile robot development" /><published>2021-02-20T00:00:00-06:00</published><updated>2021-02-20T00:00:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo</id><content type="html" xml:base="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo.html">&lt;h1 id=&quot;veloxmobo---mobile-robot-development&quot;&gt;VeloxMobo - mobile robot development&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://machinelearninghelsinki.github.io/mlstudygroup/feed.xml" rel="self" type="application/atom+xml" /><link href="https://machinelearninghelsinki.github.io/mlstudygroup/" rel="alternate" type="text/html" /><updated>2021-02-25T06:18:43-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/feed.xml</id><title type="html">Machine Learning Study Group</title><subtitle>An easy to use blogging platform with support for Jupyter Notebooks.</subtitle><entry><title type="html">VeloxMobo - mobile robot development</title><link href="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo.html" rel="alternate" type="text/html" title="VeloxMobo - mobile robot development" /><published>2021-02-20T00:00:00-06:00</published><updated>2021-02-20T00:00:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo</id><content type="html" xml:base="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/20/Velox-Mobo.html">&lt;h1 id=&quot;veloxmobo---mobile-robot-development&quot;&gt;VeloxMobo - mobile robot development&lt;/h1&gt;
 
 &lt;p&gt;&lt;img src=&quot;/mlstudygroup/images/velox-dev/jetson.jpg&quot; alt=&quot;&quot; title=&quot;Jetson Nano with Stereo camera&quot; /&gt;&lt;/p&gt;
 
@@ -13,18 +13,18 @@
 
 &lt;h2 id=&quot;computer-vision-and-mapping-flow&quot;&gt;Computer Vision and Mapping flow&lt;/h2&gt;
 &lt;p&gt;&lt;br /&gt;
-&lt;img src=&quot;/mlstudygroup/images/velox-dev/planning.png&quot; alt=&quot;&quot; title=&quot;Sensing and planning&quot; /&gt;
+&lt;img src=&quot;/mlstudygroup/images/velox-dev/planning.PNG&quot; alt=&quot;&quot; title=&quot;Sensing and planning&quot; /&gt;
 &lt;br /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;ml-devops-pipeline&quot;&gt;ML DevOps pipeline&lt;/h2&gt;
 &lt;p&gt;&lt;br /&gt;
-&lt;img src=&quot;/mlstudygroup/images/velox-dev/devops-process.png&quot; alt=&quot;&quot; title=&quot;Continuous DevOps pipeline&quot; /&gt;
+&lt;img src=&quot;/mlstudygroup/images/velox-dev/devops-process.PNG&quot; alt=&quot;&quot; title=&quot;Continuous DevOps pipeline&quot; /&gt;
 &lt;br /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;preliminary-results&quot;&gt;Preliminary results&lt;/h2&gt;
 &lt;p&gt;&lt;br /&gt;
 &lt;strong&gt;City Center&lt;/strong&gt; &lt;br /&gt;
-&lt;img src=&quot;/mlstudygroup/images/velox-dev/results-street.avi&quot; alt=&quot;&quot; title=&quot;Object detection city center&quot; /&gt;
+&lt;img src=&quot;/mlstudygroup/images/velox-dev/results_street.avi&quot; alt=&quot;&quot; title=&quot;Object detection city center&quot; /&gt;
 &lt;br /&gt;&lt;/p&gt;</content><author><name></name></author><summary type="html">VeloxMobo - mobile robot development</summary></entry><entry><title type="html">Velox Mobo</title><link href="https://machinelearninghelsinki.github.io/mlstudygroup/2021/02/20/Velox-Mobo.html" rel="alternate" type="text/html" title="Velox Mobo" /><published>2021-02-20T00:00:00-06:00</published><updated>2021-02-20T00:00:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/2021/02/20/Velox-Mobo</id><content type="html" xml:base="https://machinelearninghelsinki.github.io/mlstudygroup/2021/02/20/Velox-Mobo.html">&lt;!DOCTYPE html&gt;&lt;html lang=&quot;zh-cmn-Hans&quot;&gt;&lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, maximum-scale=1&quot;&gt;
@@ -66,24 +66,24 @@ comments: true&lt;/p&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;computer-vision-and-mapping-flow&quot;&gt;Computer Vision and Mapping flow&lt;/h2&gt;
 &lt;br&gt;
-![](/mlstudygroup/images/velox-dev/planning.png &amp;quot;Sensing and planning&amp;quot;)
+![](/mlstudygroup/images/velox-dev/planning.PNG &amp;quot;Sensing and planning&amp;quot;)
 &lt;br&gt;
 
 &lt;h2 id=&quot;ml-devops-pipeline&quot;&gt;ML DevOps pipeline&lt;/h2&gt;
 &lt;br&gt;
-![](/mlstudygroup/images/velox-dev/devops-process.png &amp;quot;Continuous DevOps pipeline&amp;quot;)
+![](/mlstudygroup/images/velox-dev/devops-process.PNG &amp;quot;Continuous DevOps pipeline&amp;quot;)
 &lt;br&gt;
 
 &lt;h2 id=&quot;preliminary-results&quot;&gt;Preliminary results&lt;/h2&gt;
 &lt;br&gt;
 **City Center** &lt;br&gt;
-![](/mlstudygroup/images/velox-dev/results-street.avi &amp;quot;Object detection city center&amp;quot;)
+![](/mlstudygroup/images/velox-dev/results_street.avi &amp;quot;Object detection city center&amp;quot;)
 &lt;br&gt;
 &lt;/article&gt;&lt;/div&gt;&lt;div style=&quot;background-color: #b4b2b2;width: 50px;height:50px;line-height: 50px;text-align: center;position: fixed;bottom: 10px;right: 10px;padding-top:5px;&quot; onclick=&quot;document.documentElement.scrollTop = document.body.scrollTop =0;&quot;&gt;
   &lt;svg t=&quot;1533629773982&quot; class=&quot;icon&quot; style=&quot;&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;1035&quot; xlink=&quot;http://www.w3.org/1999/xlink&quot; width=&quot;40&quot; height=&quot;40&quot;&gt;&lt;defs&gt;&lt;style type=&quot;text/css&quot;&gt;@font-face { font-family: uc-nexus-iconfont; src: url(&quot;chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.woff&quot;) format(&quot;woff&quot;), url(&quot;chrome-extension://pogijhnlcfmcppgimcaccdkmbedjkmhi/res/font_9qmmi8b8jsxxbt9.ttf&quot;) format(&quot;truetype&quot;); }
   &lt;/style&gt;&lt;/defs&gt;&lt;path d=&quot;M536.255427 195.182354c-7.804756-7.804756-17.966187-11.615549-28.311813-11.615549-9.43693 0-18.874883 3.449565-26.496467 10.163477-2.360767 1.452071-4.356214 3.267417-6.352685 5.262864L218.47792 455.611735c-15.607466 15.60542-15.607466 40.834011 0 56.43943 15.607466 15.607466 41.558511 15.607466 57.167001 0l193.46013-192.733583 0 600.526219c0 22.1423 17.787108 39.927361 39.927361 39.927361 22.140253 0 39.927361-17.785062 39.927361-39.927361L548.959773 319.317583 737.15704 508.422522c15.607466 15.607466 40.469714 15.607466 56.078203 0 15.607466-15.607466 15.425318-40.834011-0.182149-56.441477L536.255427 195.182354 536.255427 195.182354z&quot; p-id=&quot;1036&quot; fill=&quot;#333&quot;/&gt;&lt;path d=&quot;M101.784174 143.097092l816.674071 0c22.140253 0 39.925315-17.785062 39.925315-39.927361 0-22.140253-17.784038-39.925315-39.925315-39.925315L101.784174 63.244416c-22.140253 0-39.927361 17.785062-39.927361 39.925315C61.856813 125.31203 79.643921 143.097092 101.784174 143.097092L101.784174 143.097092z&quot; p-id=&quot;1037&quot; fill=&quot;#333&quot;/&gt;&lt;/svg&gt;
 &lt;/div&gt;
-&lt;/body&gt;&lt;/html&gt;</content><author><name></name></author><summary type="html">toc: true layout: post description: VeloxMobo development process categories: [learning] comments: true title: &amp;quot;VeloxMobo - mobile robot development&amp;quot; VeloxMobo - mobile robot development ![](/mlstudygroup/images/velox-dev/jetson.jpg &amp;quot;Jetson Nano with Stereo camera&amp;quot;) Key Highlights Hobbyist project, autonomous delivery of light cargo (up to 2 kg) in Helsinki area. Hardware: Nvidia Jetson Nano microcomputer, stereo camera, monocular camera, LiDAR, GPS module. Software: lane and obstacle detection software (Python/C++) using OpenCV and Tensorflow. Navigation, decision making and path planning using Jetson OS and simultaneous mapping software. Expected date of production: May, 2021. Computer Vision and Mapping flow ![](/mlstudygroup/images/velox-dev/planning.png &amp;quot;Sensing and planning&amp;quot;)</summary></entry><entry><title type="html">Intro to Stereo Vision</title><link href="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision.html" rel="alternate" type="text/html" title="Intro to Stereo Vision" /><published>2021-02-13T00:00:00-06:00</published><updated>2021-02-13T00:00:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision</id><content type="html" xml:base="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision.html">&lt;h1 id=&quot;intro-to-stereo-vision&quot;&gt;Intro to Stereo Vision&lt;/h1&gt;
+&lt;/body&gt;&lt;/html&gt;</content><author><name></name></author><summary type="html">toc: true layout: post description: VeloxMobo development process categories: [learning] comments: true title: &amp;quot;VeloxMobo - mobile robot development&amp;quot; VeloxMobo - mobile robot development ![](/mlstudygroup/images/velox-dev/jetson.jpg &amp;quot;Jetson Nano with Stereo camera&amp;quot;) Key Highlights Hobbyist project, autonomous delivery of light cargo (up to 2 kg) in Helsinki area. Hardware: Nvidia Jetson Nano microcomputer, stereo camera, monocular camera, LiDAR, GPS module. Software: lane and obstacle detection software (Python/C++) using OpenCV and Tensorflow. Navigation, decision making and path planning using Jetson OS and simultaneous mapping software. Expected date of production: May, 2021. Computer Vision and Mapping flow ![](/mlstudygroup/images/velox-dev/planning.PNG &amp;quot;Sensing and planning&amp;quot;)</summary></entry><entry><title type="html">Intro to Stereo Vision</title><link href="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision.html" rel="alternate" type="text/html" title="Intro to Stereo Vision" /><published>2021-02-13T00:00:00-06:00</published><updated>2021-02-13T00:00:00-06:00</updated><id>https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision</id><content type="html" xml:base="https://machinelearninghelsinki.github.io/mlstudygroup/learning/2021/02/13/Stereo-Vision.html">&lt;h1 id=&quot;intro-to-stereo-vision&quot;&gt;Intro to Stereo Vision&lt;/h1&gt;
 
 &lt;h2 id=&quot;stereo-vision&quot;&gt;Stereo vision&lt;/h2&gt;
 
