@@ -19,16 +19,16 @@ title:  "VeloxMobo - mobile robot development"
 
 ## Computer Vision and Mapping flow
 <br>
-![]({{ site.baseurl }}/images/velox-dev/planning.png "Sensing and planning")
+![]({{ site.baseurl }}/images/velox-dev/planning.PNG "Sensing and planning")
 <br>
 
 ## ML DevOps pipeline
 <br>
-![]({{ site.baseurl }}/images/velox-dev/devops-process.png "Continuous DevOps pipeline")
+![]({{ site.baseurl }}/images/velox-dev/devops-process.PNG "Continuous DevOps pipeline")
 <br>
 
 ## Preliminary results
 <br>
 **City Center** <br>
-![]({{ site.baseurl }}/images/velox-dev/results-street.avi "Object detection city center")
+![]({{ site.baseurl }}/images/velox-dev/results_street.avi "Object detection city center")
 <br>
