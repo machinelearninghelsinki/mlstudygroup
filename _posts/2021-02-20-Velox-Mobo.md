@@ -30,5 +30,5 @@ title:  "VeloxMobo - mobile robot development"
 ## Preliminary results
 <br>
 **City Center** <br>
-![]({{ site.baseurl }}/images/velox_dev/results-street.avi "Street object detection")
+![]({{ site.baseurl }}/images/velox_dev/results-street.avi "Object detection city center")
 <br>
